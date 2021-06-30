@@ -8,14 +8,18 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import com.accolite.course.entities.CourseEntity;
 import com.accolite.course.entities.Creator;
+import com.accolite.course.entities.Participants;
 import com.accolite.course.entities.Skill;
 import com.accolite.course.exception.NoContentException;
 import com.accolite.course.models.Course;
 import com.accolite.course.repositories.CourseRepository;
 import com.accolite.course.repositories.CreatorRepository;
+import com.accolite.course.repositories.ParticipantsRepository;
 import com.accolite.course.repositories.SkillRepository;
 
 @Service
@@ -25,13 +29,31 @@ public class CourseService {
 	private CourseRepository courseRepository;
 	
 	@Autowired
+	private ParticipantsRepository participantRepository;
+	
+	@Autowired
 	private SkillRepository skillRepository;
 	
 	@Autowired
 	private CreatorRepository creatorRepository;
+	
+	@Autowired
+    private JavaMailSender emailSender;
 
 	public Course saveIntocourseItemTable(Course course) {
+		
+		Iterable<Participants> participants = participantRepository.findAll();
+		
+		
 		CourseEntity entity = courseRepository.save(mapObjectToEntity(course));
+		
+		for(Participants p : participants)
+		{
+			System.out.println(p.getName());
+			sendMail(p.getEmail());
+		}
+		
+		
 		return mapEntityToObject(entity);
 	}
 
@@ -180,11 +202,14 @@ public class CourseService {
 	}
 
 	public Course updateRecordIntocourseTable(Course course) {
+		/*Optional<CourseEntity> c = courseRepository.findById(course.getId());
+		c.*/
 		CourseEntity entity = courseRepository.save(mapObjectToEntity(course));
 		return mapEntityToObject(entity);
 
 	}
 
+	/*
 	public Course fetchCoursesByLocation(String location) throws NoContentException {
 
 		Optional<CourseEntity> entity = courseRepository.findByLocation(location);
@@ -193,16 +218,27 @@ public class CourseService {
 		}
 		return mapEntityToObject(entity.get());
 
-	}
+	}*/
 	
 	
 	public Course fetchcoursebyLocation(String s) throws NoContentException {
 
 		Optional<CourseEntity> entity = courseRepository.findByLocation(s);
+		System.out.println("entity is " + entity);
 		if (!entity.isPresent()) {
 			throw new NoContentException(HttpStatus.NO_CONTENT);
 		}
 		return mapEntityToObject(entity.get());
 
+	}
+	
+	public void sendMail(String s)
+	{
+		SimpleMailMessage message = new SimpleMailMessage(); 
+        message.setFrom("akhildeo47@gmail.com");
+        message.setTo(s); 
+        message.setSubject("Test Mail"); 
+        message.setText("New Course has been added");
+        emailSender.send(message);
 	}
 }

@@ -31,7 +31,8 @@ public class CourseController {
 
 	@Autowired
 	private CourseRepository courseRepository;
-
+	
+	
 	@PostMapping("/save")
 	public ResponseEntity<Course> saveIntocourseItemTable(@RequestBody Course course) {
 		return new ResponseEntity<>(courseService.saveIntocourseItemTable(course), HttpStatus.OK);
@@ -76,6 +77,7 @@ public class CourseController {
 	}
 	@GetMapping(path = "/bylocation/{location}")
 	public ResponseEntity<Course> fetchcoursebyLocation(@PathVariable("location") String location) {
+				
 		Course courseData = null;
 		try {
 			courseData = courseService.fetchcoursebyLocation(location);
@@ -86,5 +88,6 @@ public class CourseController {
 		return new ResponseEntity<>(courseData, HttpStatus.OK);
 
 	}
+	
 
 }

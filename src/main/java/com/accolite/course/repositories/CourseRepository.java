@@ -19,3 +19,4 @@ public interface CourseRepository extends CrudRepository<CourseEntity, Long> {
 
 	
 }
+ 
